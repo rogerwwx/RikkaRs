@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import me.rerere.rikkahub.ui.theme.LocalDarkMode
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.toArgb
@@ -794,7 +795,17 @@ private fun Paragraph(
     val hasInlineMath = remember(node) {
         node.findChildOfTypeRecursive(GFMElementTypes.INLINE_MATH) != null
     }
-    val enableLatexRendering = LocalSettings.current.displaySetting.enableLatexRendering
+    val displaySetting = LocalSettings.current.displaySetting
+    val enableLatexRendering = displaySetting.enableLatexRendering
+    // 引号/括号染色：颜色为空时按明暗主题取默认值（与华灯的默认色一致）
+    val enableTextColor = displaySetting.enableTextColor
+    val isDarkTheme = LocalDarkMode.current
+    val quoteColor = remember(displaySetting.quoteColor, isDarkTheme) {
+        parseTextColor(displaySetting.quoteColor, Color(if (isDarkTheme) 0xFFE18A24 else 0xFFC7731E))
+    }
+    val bracketColor = remember(displaySetting.bracketColor, isDarkTheme) {
+        parseTextColor(displaySetting.bracketColor, Color(if (isDarkTheme) 0xFF7EAFC4 else 0xFF5B8DEF))
+    }
 
     val textStyle = LocalTextStyle.current
     val density = LocalDensity.current
@@ -805,8 +816,10 @@ private fun Paragraph(
             else Modifier
         )
     ) {
-        val annotatedString = remember(content, enableLatexRendering, latexColorArgb) {
-            buildAnnotatedString {
+        val annotatedString = remember(
+            content, enableLatexRendering, latexColorArgb, enableTextColor, quoteColor, bracketColor
+        ) {
+            val plain = buildAnnotatedString {
                 node.children.fastForEach { child ->
                     appendMarkdownNodeContent(
                         node = child,
@@ -822,6 +835,7 @@ private fun Paragraph(
                     )
                 }
             }
+            if (enableTextColor) plain.withQuoteBracketColors(quoteColor, bracketColor) else plain
         }
         Text(
             text = annotatedString,

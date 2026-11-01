@@ -1029,6 +1029,8 @@
   <string name="setting_display_page_show_updates_title">Show Updates</string>
   <string name="setting_display_page_show_user_avatar_desc">Whether to display user avatar in chat messages</string>
   <string name="setting_display_page_show_user_avatar_title">Show User Avatar</string>
+  <string name="setting_display_page_text_color_title">Highlight Quotes</string>
+  <string name="setting_display_page_text_color_desc">Color text inside quotation marks orange and inside brackets blue</string>
   <string name="setting_display_page_skip_crop_image_desc">Skip crop interface after importing images or taking photos</string>
   <string name="setting_display_page_skip_crop_image_title">Skip Image Editing</string>
   <string name="setting_display_page_title">Display Settings</string>

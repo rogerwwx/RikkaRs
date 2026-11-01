@@ -993,6 +993,8 @@
   <string name="setting_display_page_show_updates_title">显示更新</string>
   <string name="setting_display_page_show_user_avatar_desc">是否在聊天消息中显示用户头像</string>
   <string name="setting_display_page_show_user_avatar_title">显示用户头像</string>
+  <string name="setting_display_page_text_color_title">引号内文字染色</string>
+  <string name="setting_display_page_text_color_desc">引号内的文字变橙色，括号内的文字变蓝色</string>
   <string name="setting_display_page_skip_crop_image_desc">导入图片或拍照后跳过裁剪界面</string>
   <string name="setting_display_page_skip_crop_image_title">跳过图片编辑</string>
   <string name="setting_display_page_title">显示设置</string>
