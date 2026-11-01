@@ -76,6 +76,7 @@ import me.rerere.hugeicons.stroke.Tick01
 import me.rerere.rikkahub.ui.components.table.DataTable
 import me.rerere.rikkahub.ui.context.LocalSettings
 import me.rerere.rikkahub.ui.theme.JetbrainsMono
+import me.rerere.rikkahub.ui.theme.LocalDarkMode
 import me.rerere.rikkahub.utils.toDp
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
@@ -344,7 +345,11 @@ private fun HtmlParagraphContent(
         return
     }
 
-    val enableLatexRendering = LocalSettings.current.displaySetting.enableLatexRendering
+    val displaySetting = LocalSettings.current.displaySetting
+    val enableLatexRendering = displaySetting.enableLatexRendering
+    // 引号/括号染色：带 HTML 的消息走这条渲染路径（Markdown.kt:263 分流），
+    // 之前只在纯文本的 Paragraph 里染过，所以状态栏/卡片类消息看起来「没生效」。
+    val quoteBracketColors = rememberQuoteBracketColors()
     val hasInlineMath = element.select("span.math").any { it.attr("inline") == "true" }
     val colorScheme = MaterialTheme.colorScheme
     val textStyle = LocalTextStyle.current
@@ -356,6 +361,7 @@ private fun HtmlParagraphContent(
         density,
         textStyle,
         onClickCitation,
+        quoteBracketColors,
     ) {
         val contents = mutableMapOf<String, InlineTextContent>()
         val text = buildAnnotatedString {
@@ -371,7 +377,10 @@ private fun HtmlParagraphContent(
                 )
             }
         }
-        text to contents
+        val colored = quoteBracketColors?.let { (quote, bracket) ->
+            text.withQuoteBracketColors(quote, bracket)
+        } ?: text
+        colored to contents
     }
 
     Text(
@@ -703,6 +712,7 @@ private fun HtmlInlineGroup(nodes: List<Node>, onClickCitation: (String) -> Unit
     val colorScheme = MaterialTheme.colorScheme
     val textStyle = LocalTextStyle.current
     val density = LocalDensity.current
+    val quoteBracketColors = rememberQuoteBracketColors()
 
     val key = remember(nodes) { nodes.joinToString("") { if (it is Element) it.outerHtml() else it.toString() } }
     val (annotatedString, inlineContents) = remember(
@@ -712,6 +722,7 @@ private fun HtmlInlineGroup(nodes: List<Node>, onClickCitation: (String) -> Unit
         density,
         textStyle,
         onClickCitation,
+        quoteBracketColors,
     ) {
         val contents = mutableMapOf<String, InlineTextContent>()
         val text = buildAnnotatedString {
@@ -727,7 +738,10 @@ private fun HtmlInlineGroup(nodes: List<Node>, onClickCitation: (String) -> Unit
                 )
             }
         }
-        text to contents
+        val colored = quoteBracketColors?.let { (quote, bracket) ->
+            text.withQuoteBracketColors(quote, bracket)
+        } ?: text
+        colored to contents
     }
 
     if (annotatedString.isNotEmpty()) {

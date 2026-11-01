@@ -25,6 +25,22 @@ internal val TEXT_COLOR_REGEX = Regex(
         "|\"(.+?)\"|\u201C(.+?)\u201D|\u00AB(.+?)\u00BB|\uFF02(.+?)\uFF02"
 )
 
+
+/** 读设置里的开关与颜色；关着时返回 null。三处渲染路径共用，避免各写一遍。 */
+@androidx.compose.runtime.Composable
+internal fun rememberQuoteBracketColors(): Pair<Color, Color>? {
+    val display = me.rerere.rikkahub.ui.context.LocalSettings.current.displaySetting
+    if (!display.enableTextColor) return null
+    val dark = me.rerere.rikkahub.ui.theme.LocalDarkMode.current
+    val quote = androidx.compose.runtime.remember(display.quoteColor, dark) {
+        parseTextColor(display.quoteColor, Color(if (dark) 0xFFE18A24 else 0xFFC7731E))
+    }
+    val bracket = androidx.compose.runtime.remember(display.bracketColor, dark) {
+        parseTextColor(display.bracketColor, Color(if (dark) 0xFF7EAFC4 else 0xFF5B8DEF))
+    }
+    return quote to bracket
+}
+
 /** 支持 #RRGGBB 与 #AARRGGBB；空串或格式不对时返回 fallback。 */
 internal fun parseTextColor(value: String, fallback: Color): Color {
     val hex = value.trim().removePrefix("#")

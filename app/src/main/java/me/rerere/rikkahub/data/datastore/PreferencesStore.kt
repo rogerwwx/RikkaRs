@@ -1945,7 +1945,7 @@ data class DisplaySetting(
     val enableNotificationOnMessageGeneration: Boolean = false,
     val enableLiveUpdateNotification: Boolean = false,
     // 引号/括号内文字染色（移植自华灯）：颜色为空串时按明暗主题取默认值
-    val enableTextColor: Boolean = false,
+    val enableTextColor: Boolean = true,
     val quoteColor: String = "",
     val bracketColor: String = "",
     val codeBlockAutoWrap: Boolean = false,
