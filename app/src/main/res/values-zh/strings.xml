@@ -2476,6 +2476,11 @@ mDNS 地址：使用 .local 主机名，同一网络中的其他设备可通过�
   <string name="semantic_memory_setting_embedding_model">嵌入模型</string>
   <string name="semantic_memory_setting_embedding_model_hint">从已配置的提供商中选择 Embedding 模型（与提供商页一致）</string>
   <string name="semantic_memory_setting_test_connection">测试连接</string>
+  <string name="semantic_memory_setting_inject_position">注入位置</string>
+  <string name="semantic_memory_setting_inject_position_desc">放系统提示词里会随记忆变化让整段前缀缓存失效；对话内注入只影响插入点之后的 token，缓存更稳。</string>
+  <string name="semantic_memory_inject_system">系统提示词</string>
+  <string name="semantic_memory_inject_in_chat">对话内</string>
+  <string name="semantic_memory_setting_inject_depth">深度 %1$d（1 = 插在最后一条消息之前）</string>
   <string name="semantic_memory_setting_recall_settings">召回设置</string>
   <string name="semantic_memory_setting_recall_top_k">每次召回最大记忆条数 (1-100)</string>
   <string name="semantic_memory_setting_similarity_threshold">相似度阈值: %1$s</string>

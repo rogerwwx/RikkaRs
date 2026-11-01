@@ -17,6 +17,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import me.rerere.hugeicons.HugeIcons
 import me.rerere.hugeicons.stroke.Brain02
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
+import me.rerere.rikkahub.data.memory.semantic.SemanticInjectPosition
 import me.rerere.rikkahub.ui.components.nav.BackButton
 import me.rerere.rikkahub.ui.components.ui.CardGroup
 import me.rerere.rikkahub.ui.context.LocalNavController
@@ -209,6 +211,64 @@ fun SemanticMemorySettingPage(vm: SemanticMemoryVM = koinViewModel()) {
                                     color = if (result.startsWith("OK")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.padding(top = 8.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ---- 注入位置 ----
+            item("injectPosition") {
+                CardGroup(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    title = { Text(stringResource(R.string.semantic_memory_setting_inject_position)) },
+                ) {
+                    item {
+                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            Text(
+                                text = stringResource(R.string.semantic_memory_setting_inject_position_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Row(
+                                modifier = Modifier.padding(top = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                val positions = listOf(
+                                    SemanticInjectPosition.SYSTEM to R.string.semantic_memory_inject_system,
+                                    SemanticInjectPosition.IN_CHAT to R.string.semantic_memory_inject_in_chat,
+                                )
+                                positions.forEach { (position, labelRes) ->
+                                    FilterChip(
+                                        selected = config.injectPosition == position,
+                                        onClick = {
+                                            vm.updateConfig { it.copy(injectPosition = position) }
+                                        },
+                                        label = { Text(stringResource(labelRes)) },
+                                    )
+                                }
+                            }
+                            if (config.injectPosition == SemanticInjectPosition.IN_CHAT) {
+                                // 深度用本地缓冲，松手才写 DataStore，避免拖动时每帧一次写盘
+                                var localDepth by remember(config.injectDepth) {
+                                    mutableStateOf(config.injectDepth)
+                                }
+                                Text(
+                                    text = stringResource(
+                                        R.string.semantic_memory_setting_inject_depth, localDepth,
+                                    ),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(top = 12.dp),
+                                )
+                                Slider(
+                                    value = localDepth.coerceIn(0, 10).toFloat(),
+                                    onValueChange = { localDepth = it.toInt() },
+                                    onValueChangeFinished = {
+                                        vm.updateConfig { it.copy(injectDepth = localDepth.coerceIn(0, 10)) }
+                                    },
+                                    valueRange = 0f..10f,
+                                    steps = 9,
                                 )
                             }
                         }

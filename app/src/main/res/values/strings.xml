@@ -2513,6 +2513,11 @@
   <string name="semantic_memory_setting_embedding_model">Embedding Model</string>
   <string name="semantic_memory_setting_embedding_model_hint">Select an Embedding model from configured providers (same as the provider page)</string>
   <string name="semantic_memory_setting_test_connection">Test connection</string>
+  <string name="semantic_memory_setting_inject_position">Injection Position</string>
+  <string name="semantic_memory_setting_inject_position_desc">System prompt keeps memory in the prefix, so every memory write invalidates the whole prompt cache. In-chat inserts it as a separate message near the tail and only forks the prefix below that point.</string>
+  <string name="semantic_memory_inject_system">System prompt</string>
+  <string name="semantic_memory_inject_in_chat">In-chat</string>
+  <string name="semantic_memory_setting_inject_depth">Depth %1$d (1 = before the last message)</string>
   <string name="semantic_memory_setting_recall_settings">Recall Settings</string>
   <string name="semantic_memory_setting_recall_top_k">Max memories per recall (1-100)</string>
   <string name="semantic_memory_setting_similarity_threshold">Similarity threshold: %1$s</string>
