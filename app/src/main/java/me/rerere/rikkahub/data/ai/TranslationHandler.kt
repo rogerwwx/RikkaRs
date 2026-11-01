@@ -65,7 +65,7 @@ class TranslationHandler(
         } else {
             // Use Qwen MT model with special translation options
             val messages = listOf(UIMessage.user(sourceText))
-            val result = providerHandler.generateText(
+            val result = providerHandler.generateStreaming(
                 providerSetting = provider,
                 messages = messages,
                 params = TextGenerationParams(

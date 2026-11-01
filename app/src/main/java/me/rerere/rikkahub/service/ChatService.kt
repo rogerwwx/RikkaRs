@@ -53,6 +53,7 @@ import me.rerere.common.android.Logging
 import me.rerere.rikkahub.AppScope
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.data.ai.GenerationChunk
+import me.rerere.rikkahub.data.ai.generateStreaming
 import me.rerere.rikkahub.data.ai.prompts.buildInputDraftPrompt
 import me.rerere.rikkahub.data.ai.prompts.resolveBuiltinOverride
 import me.rerere.rikkahub.data.ai.prompts.BuiltinPromptRegistry
@@ -2498,7 +2499,7 @@ class ChatService(
             val params = backgroundTextGenerationParams(model, settings.fastModelReasoningLevel)
             ProviderRateLimiter.await(provider = provider, messages = messages, params = params)
             val result = recordProviderCall(provider, model) {
-                providerHandler.generateText(
+                providerHandler.generateStreaming(
                     providerSetting = provider,
                     messages = messages,
                     params = params,
@@ -2552,7 +2553,7 @@ class ChatService(
             val params = backgroundTextGenerationParams(model, settings.fastModelReasoningLevel) 
             ProviderRateLimiter.await(provider = provider, messages = messages, params = params)
             val result = recordProviderCall(provider, model) {
-                providerHandler.generateText(
+                providerHandler.generateStreaming(
                     providerSetting = provider,
                     messages = messages,
                     params = params,
@@ -2706,7 +2707,7 @@ class ChatService(
             val params = backgroundTextGenerationParams(model, settings.fastModelReasoningLevel) 
             ProviderRateLimiter.await(provider = provider, messages = requestMessages, params = params)
             val result = recordProviderCall(provider, model) {
-                providerHandler.generateText(
+                providerHandler.generateStreaming(
                     providerSetting = provider,
                     messages = requestMessages,
                     params = params,

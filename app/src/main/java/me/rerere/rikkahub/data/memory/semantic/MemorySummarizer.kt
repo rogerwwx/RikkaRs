@@ -11,6 +11,7 @@ import me.rerere.ai.core.MessageRole
 import me.rerere.ai.provider.ProviderManager
 import me.rerere.ai.provider.TextGenerationParams
 import me.rerere.ai.ui.UIMessage
+import me.rerere.rikkahub.data.ai.generateStreaming
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.datastore.findModelById
 import me.rerere.rikkahub.data.datastore.findProvider
@@ -75,25 +76,14 @@ class MemorySummarizer(
         // 走流式：总结动辄一两分钟，非流式要等整包返回，任何一个中转的读超时都会把这次
         // 总结丢进「上次总结失败」。流式边到边拼，读超时只在完全没有新数据时才会触发。
         val responseText = runCatching {
-            val handler = me.rerere.ai.ui.StreamChunkHandler(model)
-            var acc = listOf(
-                UIMessage(
-                    role = MessageRole.ASSISTANT,
-                    parts = emptyList(),
-                    modelId = model.id,
-                ),
-            )
-            providerImpl.streamText(
+            providerImpl.generateStreaming(
                 providerSetting = provider,
                 messages = requestMessages,
                 params = TextGenerationParams(
                     model = model,
                     temperature = 0.3f,
                 ),
-            ).collect { chunk ->
-                acc = handler.handle(acc, chunk)
-            }
-            acc.last().toText()
+            ).message.toText()
         }.getOrElse {
             Log.e(TAG, "summarize: AI call failed", it)
             return@withContext SummarizeResult(errors = listOf("AI call failed: ${it.message}"))

@@ -4,6 +4,7 @@ import me.rerere.ai.provider.ProviderManager
 import me.rerere.ai.core.MessageRole
 import me.rerere.ai.ui.UIMessage
 import me.rerere.rikkahub.data.ai.ProviderRateLimiter
+import me.rerere.rikkahub.data.ai.generateStreaming
 import me.rerere.rikkahub.data.datastore.SettingsStore
 import me.rerere.rikkahub.data.datastore.findModelById
 import me.rerere.rikkahub.data.datastore.findProvider
@@ -80,7 +81,7 @@ class ProviderHookModelExecutor(
         )
         val params = backgroundTextGenerationParams(model)
         ProviderRateLimiter.await(provider = provider, messages = messages, params = params)
-        val raw = providerHandler.generateText(
+        val raw = providerHandler.generateStreaming(
             providerSetting = provider,
             messages = messages,
             params = params,
