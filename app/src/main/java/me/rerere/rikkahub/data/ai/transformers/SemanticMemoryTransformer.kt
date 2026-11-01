@@ -11,6 +11,7 @@ import me.rerere.rikkahub.data.memory.semantic.DEFAULT_SEMANTIC_MAX_MEMORY_CONTE
 import me.rerere.rikkahub.data.memory.semantic.RecallService
 import me.rerere.rikkahub.data.memory.semantic.RecalledMemory
 import me.rerere.rikkahub.data.memory.semantic.SemanticInjectPosition
+import me.rerere.rikkahub.data.memory.semantic.SemanticInjectRole
 import me.rerere.rikkahub.data.memory.semantic.SemanticMemoryConfig
 
 private const val TAG = "SemanticMemoryTransformer"
@@ -65,7 +66,8 @@ class SemanticMemoryTransformer(
         val memoryText = buildRecalledMemoryPrompt(result.memories, config)
         return when (config.injectPosition) {
             SemanticInjectPosition.SYSTEM -> mergeIntoSystem(messages, memoryText)
-            SemanticInjectPosition.IN_CHAT -> insertAtDepth(messages, memoryText, config.injectDepth)
+            SemanticInjectPosition.IN_CHAT ->
+                insertAtDepth(messages, memoryText, config.injectDepth, config.injectRole)
         }
     }
 
@@ -92,14 +94,15 @@ class SemanticMemoryTransformer(
      * （1 = 最后一条消息之前，0 = 末尾）。这样 system prompt 前缀保持稳定，
      * 记忆写入只让插入点之后分叉，不再把整段前缀缓存清空。
      *
-     * 角色用 SYSTEM：ChatCompletions 的节点式接口会把中段 system 原样透传。
-     * 注意这只对 ChatCompletions 成立——ClaudeProvider / GoogleProvider / OpenAI ResponseAPI
-     * 都只取第一条 system 当系统提示，其余 system 会被过滤掉，换这类接口时这里要改成 USER。
+     * 角色由 [SemanticMemoryConfig.injectRole] 决定。默认 SYSTEM 对 ChatCompletions 成立；
+     * ClaudeProvider / GoogleProvider / OpenAI ResponseAPI 只取第一条 system 当系统提示、
+     * 其余 system 会被过滤掉，用这些接口时改成 USER 或 ASSISTANT。
      */
     private fun insertAtDepth(
         messages: List<UIMessage>,
         memoryText: String,
         depth: Int,
+        role: SemanticInjectRole,
     ): List<UIMessage> {
         val visible = messages.indices.filter { messages[it].role != MessageRole.SYSTEM }
         val insertAt = if (visible.isEmpty()) {
@@ -108,7 +111,12 @@ class SemanticMemoryTransformer(
             visible.getOrNull(visible.size - depth.coerceAtLeast(0)) ?: messages.size
         }
         return messages.toMutableList().apply {
-            add(insertAt, UIMessage.system(memoryText).copy(isSynthetic = true))
+            val injected = when (role) {
+                SemanticInjectRole.SYSTEM -> UIMessage.system(memoryText)
+                SemanticInjectRole.USER -> UIMessage.user(memoryText)
+                SemanticInjectRole.ASSISTANT -> UIMessage.assistant(memoryText)
+            }
+            add(insertAt, injected.copy(isSynthetic = true))
         }
     }
 

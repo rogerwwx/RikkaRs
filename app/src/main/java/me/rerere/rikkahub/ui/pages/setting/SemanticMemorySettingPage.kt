@@ -47,6 +47,7 @@ import me.rerere.hugeicons.stroke.Brain02
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.memory.semantic.SemanticInjectPosition
+import me.rerere.rikkahub.data.memory.semantic.SemanticInjectRole
 import me.rerere.rikkahub.ui.components.nav.BackButton
 import me.rerere.rikkahub.ui.components.ui.CardGroup
 import me.rerere.rikkahub.ui.context.LocalNavController
@@ -245,6 +246,29 @@ fun SemanticMemorySettingPage(vm: SemanticMemoryVM = koinViewModel()) {
                                         onClick = {
                                             vm.updateConfig { it.copy(injectPosition = position) }
                                         },
+                                        label = { Text(stringResource(labelRes)) },
+                                    )
+                                }
+                            }
+                            // 角色和世界书/模式注入一样可自由选择；IN_CHAT 时才有意义
+                            Text(
+                                text = stringResource(R.string.semantic_memory_inject_role),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 12.dp),
+                            )
+                            Row(
+                                modifier = Modifier.padding(top = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                val roles = listOf(
+                                    SemanticInjectRole.SYSTEM to R.string.semantic_memory_inject_role_system,
+                                    SemanticInjectRole.USER to R.string.semantic_memory_inject_role_user,
+                                    SemanticInjectRole.ASSISTANT to R.string.semantic_memory_inject_role_assistant,
+                                )
+                                roles.forEach { (role, labelRes) ->
+                                    FilterChip(
+                                        selected = config.injectRole == role,
+                                        onClick = { vm.updateConfig { it.copy(injectRole = role) } },
                                         label = { Text(stringResource(labelRes)) },
                                     )
                                 }

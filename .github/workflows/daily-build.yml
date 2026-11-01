@@ -83,13 +83,33 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > rikka-arsucar-release.jks
-          cat >> local.properties << EOF
-          storeFile=rikka-arsucar-release.jks
-          storePassword=${KEYSTORE_PASSWORD}
-          keyAlias=${KEY_ALIAS}
-          keyPassword=${KEY_PASSWORD}
-          EOF
+          # 四个 secret 齐了才用真签名；否则生成本次构建专用的 debug keystore。
+          # 原来无条件 base64 -d + 拼 local.properties：secret 缺失时写出的是空文件，
+          # 打包阶段就报 KeytoolException: Failed to read key / Tag number over 30 is not supported。
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > rikka-arsucar-release.jks
+            store_file=rikka-arsucar-release.jks
+            store_pass="$KEYSTORE_PASSWORD"
+            key_alias="$KEY_ALIAS"
+            key_pass="$KEY_PASSWORD"
+          else
+            echo "::warning::signing secrets missing, generating a throwaway debug keystore"
+            rm -f rikka-ci-debug.jks
+            keytool -genkeypair -keystore rikka-ci-debug.jks \
+              -storepass android -keypass android \
+              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US" >/dev/null 2>&1
+            store_file=rikka-ci-debug.jks
+            store_pass=android
+            key_alias=androiddebugkey
+            key_pass=android
+          fi
+          {
+            echo "storeFile=$store_file"
+            echo "storePassword=$store_pass"
+            echo "keyAlias=$key_alias"
+            echo "keyPassword=$key_pass"
+          } >> local.properties
 
       - name: Gradle Build
         run: |

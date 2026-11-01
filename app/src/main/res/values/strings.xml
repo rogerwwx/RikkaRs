@@ -2517,6 +2517,10 @@
   <string name="semantic_memory_setting_inject_position_desc">System prompt keeps memory in the prefix, so every memory write invalidates the whole prompt cache. In-chat inserts it as a separate message near the tail and only forks the prefix below that point.</string>
   <string name="semantic_memory_inject_system">System prompt</string>
   <string name="semantic_memory_inject_in_chat">In-chat</string>
+  <string name="semantic_memory_inject_role">Injection role</string>
+  <string name="semantic_memory_inject_role_system">System</string>
+  <string name="semantic_memory_inject_role_user">User</string>
+  <string name="semantic_memory_inject_role_assistant">Assistant</string>
   <string name="semantic_memory_setting_inject_depth">Depth %1$d (1 = before the last message)</string>
   <string name="semantic_memory_setting_recall_settings">Recall Settings</string>
   <string name="semantic_memory_setting_recall_top_k">Max memories per recall (1-100)</string>

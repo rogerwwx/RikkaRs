@@ -35,6 +35,19 @@ enum class SemanticInjectPosition {
     IN_CHAT,
 }
 
+/** IN_CHAT 注入时那条消息的角色，和世界书/模式注入那套一样可以自由选。 */
+@Serializable
+enum class SemanticInjectRole {
+    @kotlinx.serialization.SerialName("system")
+    SYSTEM,
+
+    @kotlinx.serialization.SerialName("user")
+    USER,
+
+    @kotlinx.serialization.SerialName("assistant")
+    ASSISTANT,
+}
+
 @Serializable
 data class SemanticMemoryConfig(
     val enabled: Boolean = false,
@@ -48,6 +61,12 @@ data class SemanticMemoryConfig(
      * 0 表示放在末尾。默认对齐华灯常用的 System + Depth 1~2。
      */
     val injectDepth: Int = 1,
+    /**
+     * IN_CHAT 时的消息角色。默认 SYSTEM：ChatCompletions 会原样透传中段 system。
+     * 换 Claude / Google / OpenAI ResponseAPI 时它们只认第一条 system、其余会被丢掉，
+     * 那种情况把这里改成 USER 或 ASSISTANT。
+     */
+    val injectRole: SemanticInjectRole = SemanticInjectRole.SYSTEM,
     /** Provider model UUID with [me.rerere.ai.provider.ModelType.EMBEDDING]; null = not configured. */
     val embeddingModelId: Uuid? = null,
     val topK: Int = 10,
