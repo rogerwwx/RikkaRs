@@ -23,9 +23,31 @@ const val DEFAULT_SEMANTIC_MAX_INJECT_CHARS = 6_000
 /** Default max characters per single memory line after sanitize. */
 const val DEFAULT_SEMANTIC_MAX_MEMORY_CONTENT_LEN = 500
 
+/** 语义记忆的注入位置。 */
+@Serializable
+enum class SemanticInjectPosition {
+    /** 并入 system prompt（旧行为）。 */
+    @kotlinx.serialization.SerialName("system")
+    SYSTEM,
+
+    /** 作为独立消息插进对话历史，按 [SemanticMemoryConfig.injectDepth] 从末尾数深度。 */
+    @kotlinx.serialization.SerialName("in_chat")
+    IN_CHAT,
+}
+
 @Serializable
 data class SemanticMemoryConfig(
     val enabled: Boolean = false,
+    /**
+     * 注入位置。SYSTEM 会把记忆并进 system prompt，改一次记忆就让整个前缀缓存失效；
+     * IN_CHAT 只影响插入点之后的 token，与华灯的「In-chat depth」思路一致。
+     */
+    val injectPosition: SemanticInjectPosition = SemanticInjectPosition.SYSTEM,
+    /**
+     * IN_CHAT 时的深度：1 = 插在最后一条消息之前，2 = 插在倒数第二条之前，依此类推。
+     * 0 表示放在末尾。默认对齐华灯常用的 System + Depth 1~2。
+     */
+    val injectDepth: Int = 1,
     /** Provider model UUID with [me.rerere.ai.provider.ModelType.EMBEDDING]; null = not configured. */
     val embeddingModelId: Uuid? = null,
     val topK: Int = 10,

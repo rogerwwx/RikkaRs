@@ -10,6 +10,7 @@ import me.rerere.ai.ui.UIMessagePart
 import me.rerere.rikkahub.data.memory.semantic.DEFAULT_SEMANTIC_MAX_MEMORY_CONTENT_LEN
 import me.rerere.rikkahub.data.memory.semantic.RecallService
 import me.rerere.rikkahub.data.memory.semantic.RecalledMemory
+import me.rerere.rikkahub.data.memory.semantic.SemanticInjectPosition
 import me.rerere.rikkahub.data.memory.semantic.SemanticMemoryConfig
 
 private const val TAG = "SemanticMemoryTransformer"
@@ -62,6 +63,14 @@ class SemanticMemoryTransformer(
         if (result.isEmpty) return messages
 
         val memoryText = buildRecalledMemoryPrompt(result.memories, config)
+        return when (config.injectPosition) {
+            SemanticInjectPosition.SYSTEM -> mergeIntoSystem(messages, memoryText)
+            SemanticInjectPosition.IN_CHAT -> insertAtDepth(messages, memoryText, config.injectDepth)
+        }
+    }
+
+    /** 旧行为：并进 system prompt。 */
+    private fun mergeIntoSystem(messages: List<UIMessage>, memoryText: String): List<UIMessage> {
         val resultList = messages.toMutableList()
         val systemIndex = resultList.indexOfFirst { it.role == MessageRole.SYSTEM }
         if (systemIndex >= 0) {
@@ -76,6 +85,27 @@ class SemanticMemoryTransformer(
             resultList.add(0, UIMessage.system(memoryText))
         }
         return resultList
+    }
+
+    /**
+     * 华灯式 In-chat 注入：把记忆作为一条独立消息插进历史，深度从末尾倒数
+     * （1 = 最后一条消息之前，0 = 末尾）。这样 system prompt 前缀保持稳定，
+     * 记忆写入只让插入点之后分叉，不再把整段前缀缓存清空。
+     */
+    private fun insertAtDepth(
+        messages: List<UIMessage>,
+        memoryText: String,
+        depth: Int,
+    ): List<UIMessage> {
+        val visible = messages.indices.filter { messages[it].role != MessageRole.SYSTEM }
+        val insertAt = if (visible.isEmpty()) {
+            messages.size
+        } else {
+            visible.getOrNull(visible.size - depth.coerceAtLeast(0)) ?: messages.size
+        }
+        return messages.toMutableList().apply {
+            add(insertAt, UIMessage.system(memoryText).copy(isSynthetic = true))
+        }
     }
 
     private fun buildQuery(messages: List<UIMessage>): String {
