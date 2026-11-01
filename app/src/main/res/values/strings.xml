@@ -2542,8 +2542,8 @@
   <string name="semantic_memory_setting_auto_summarize">Auto summarize</string>
   <string name="semantic_memory_setting_summarize_interval">Summarize interval (conversation turns)</string>
   <string name="semantic_memory_setting_summarize_interval_desc">Trigger a summary every N user messages</string>
-  <string name="semantic_memory_setting_auto_summarize_message_count">Recent message count for auto-summarize (4-100)</string>
-  <string name="semantic_memory_setting_auto_summarize_message_count_desc">How many recent messages to include during auto-summarize</string>
+  <string name="semantic_memory_setting_auto_summarize_message_count">Max messages per auto-summarize run (4-100)</string>
+  <string name="semantic_memory_setting_auto_summarize_message_count_desc">One run consumes at most this many messages, starting from the last summarized point. Anything left over is caught up by later runs instead of being skipped.</string>
   <string name="semantic_memory_setting_max_memories_per_summary">Max memories extracted per summary</string>
   <string name="semantic_memory_setting_max_memories_per_assistant">Max memories per assistant</string>
   <string name="semantic_memory_setting_summarize_model_hint">Summarize model (uses default chat model if not set)</string>

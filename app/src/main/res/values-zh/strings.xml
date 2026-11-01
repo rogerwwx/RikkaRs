@@ -2505,8 +2505,8 @@ mDNS 地址：使用 .local 主机名，同一网络中的其他设备可通过�
   <string name="semantic_memory_setting_auto_summarize">自动总结</string>
   <string name="semantic_memory_setting_summarize_interval">总结间隔 (对话轮数)</string>
   <string name="semantic_memory_setting_summarize_interval_desc">每 N 轮用户消息自动触发一次总结</string>
-  <string name="semantic_memory_setting_auto_summarize_message_count">自动总结取最近消息条数 (4-100)</string>
-  <string name="semantic_memory_setting_auto_summarize_message_count_desc">自动总结时从最新消息往上取多少条对话</string>
+  <string name="semantic_memory_setting_auto_summarize_message_count">单次自动总结最大消息数 (4-100)</string>
+  <string name="semantic_memory_setting_auto_summarize_message_count_desc">每次从上次总结的位置往后取，最多这么多条；剩下的由后续几轮补齐，不会被跳过</string>
   <string name="semantic_memory_setting_max_memories_per_summary">每次总结最多提取记忆数</string>
   <string name="semantic_memory_setting_max_memories_per_assistant">每个助手最大记忆数</string>
   <string name="semantic_memory_setting_summarize_model_hint">总结用模型 (不选则用默认聊天模型)</string>

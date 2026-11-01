@@ -90,12 +90,23 @@ class SemanticMemoryManager(
                     "effective=$effectiveLastCount turns=$turnsSinceLast interval=${config.summarizeInterval}",
             )
 
-            if (turnsSinceLast < config.summarizeInterval) {
+            // 从游标之后开始切，而不是 takeLast(N)：
+            // 游标记的是「已经总结过多少条 user 消息」，takeLast 永远只看最新 N 条，
+            // 中间那段会被跳过，而成功后又把游标推到 currentCount —— 那些消息就永久丢失了。
+            // 现在按游标切一段（单次上限 autoSummarizeMessageCount），积压分多次补齐。
+            val userMessageIndexes = messages.withIndex()
+                .filter { it.value.role == MessageRole.USER }
+                .map { it.index }
+            val startIndex = userMessageIndexes.getOrNull(effectiveLastCount) ?: messages.size
+            val messagesToSummarize = messages.drop(startIndex).take(config.autoSummarizeMessageCount)
+            if (messagesToSummarize.isEmpty()) {
                 return@withLock null
             }
-
-            val newMsgCount = (turnsSinceLast * 2 + 4).coerceAtMost(config.autoSummarizeMessageCount)
-            val messagesToSummarize = messages.takeLast(newMsgCount)
+            val pendingAfterBatch = messages.size - (startIndex + messagesToSummarize.size)
+            // 还有积压就继续补，不再等下一个 summarizeInterval；追平后才回到按间隔触发
+            if (turnsSinceLast < config.summarizeInterval && pendingAfterBatch <= 0) {
+                return@withLock null
+            }
             Log.i(TAG, "checkAndSummarize: triggering with ${messagesToSummarize.size} messages")
 
             SemanticMemoryStats.update { it.copy(summarizeStatus = SummarizeStatus.RUNNING) }
@@ -108,7 +119,13 @@ class SemanticMemoryManager(
             )
 
             if (result.errors.isEmpty()) {
-                repository.updateState(assistantId, conversationId, currentCount)
+                // 游标只推进「这一批真正送进去的 user 消息数」，没送的留到下一轮补齐
+                val summarizedTurns = messagesToSummarize.count { it.role == MessageRole.USER }
+                repository.updateState(
+                    assistantId,
+                    conversationId,
+                    effectiveLastCount + summarizedTurns.coerceAtLeast(1),
+                )
                 SemanticMemoryStats.update {
                     it.copy(
                         summarizeStatus = SummarizeStatus.SUCCESS,
