@@ -68,7 +68,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.heightIn
@@ -345,9 +344,10 @@ private fun ChatListNormal(
                         )
                     }
                     Column(
+                        // 压缩过的历史照常渲染：只靠左侧竖条和 ChatMessage 的「已压缩」标签区分，
+                        // 不再整体压暗——压暗会让历史看起来像被删掉了。
                         modifier = Modifier
-                            .weight(1f)
-                            .alpha(if (node.hidden) 0.4f else 1f),
+                            .weight(1f),
                     ) {
                         ListSelectableItem(
                             key = node.id,
