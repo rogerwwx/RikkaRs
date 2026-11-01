@@ -61,19 +61,7 @@ internal fun AnnotatedString.withQuoteBracketColors(quote: Color, bracket: Color
             match.range.first < range.last + 1 && match.range.last + 1 > range.first
         }
     }.toList()
-    if (targets.isEmpty()) {
-        // 命中数为 0 说明这段文本里没有可配对的引号/括号，或全部落在行内代码区间内。
-        // 排查「染色没生效」时按 tag TextColor 过滤 logcat 即可。
-        android.util.Log.d(
-            "TextColor",
-            "no match: chars=$length codes=" + codeRanges.size,
-        )
-        return this
-    }
-    android.util.Log.d(
-        "TextColor",
-        "apply " + targets.size + " spans of " + length + " chars, codes=" + codeRanges.size,
-    )
+    if (targets.isEmpty()) return this
     return buildAnnotatedString {
         append(this@withQuoteBracketColors)
         targets.forEach { match ->
