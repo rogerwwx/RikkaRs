@@ -17,12 +17,12 @@ import androidx.compose.ui.text.buildAnnotatedString
  * 也不需要为代码块做分段扫描。
  */
 
-/** 括号类符号的首字符；命中即用括号色，其余用引号色。半角左括号也算括号。 */
-internal const val TEXT_COLOR_BRACKET_OPENERS = "（【「『《‹〔｛{("
+/** 括号类符号的首字符；命中即用括号色，其余用引号色。与华灯一致，只认全角与书名号。 */
+internal const val TEXT_COLOR_BRACKET_OPENERS = "（【「『《‹〔｛{"
 
 internal val TEXT_COLOR_REGEX = Regex(
     "（(.+?)）|【(.+?)】|「(.+?)」|『(.+?)』|《(.+?)》|‹(.+?)›|〔(.+?)〕|｛(.+?)｝|\\{(.+?)\\}" +
-        "|\\((.+?)\\)|\"(.+?)\"|\u201C(.+?)\u201D|\u00AB(.+?)\u00BB|\uFF02(.+?)\uFF02"
+        "|\"(.+?)\"|\u201C(.+?)\u201D|\u00AB(.+?)\u00BB|\uFF02(.+?)\uFF02"
 )
 
 /** 支持 #RRGGBB 与 #AARRGGBB；空串或格式不对时返回 fallback。 */
