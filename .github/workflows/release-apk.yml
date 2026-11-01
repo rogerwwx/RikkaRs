@@ -42,7 +42,9 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
+      # 不再调用 android-actions/setup-android：它默认会去装已被仓库移除的 "tools" 包，
+      # 新版 sdkmanager 直接报 Failed to find package 'tools' 并 exit 1。
+      # ubuntu-latest 自带 SDK / build-tools / NDK 且许可已接受，daily-build 一直这么跑。
 
       - uses: pnpm/action-setup@v4
         with:
