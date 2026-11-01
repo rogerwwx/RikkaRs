@@ -96,6 +96,13 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:assembleRelease --no-daemon
 
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rikka-arsucar-nightly-${{ github.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: app/build/outputs/apk/release/*.apk
       # 把 APK 直接发布为 Prerelease，用户点链接即可下载单个 apk，无需登录、无需解压
       - name: Publish nightly prerelease
         uses: softprops/action-gh-release@v2
