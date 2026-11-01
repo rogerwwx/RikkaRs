@@ -91,6 +91,11 @@ class SemanticMemoryTransformer(
      * 华灯式 In-chat 注入：把记忆作为一条独立消息插进历史，深度从末尾倒数
      * （1 = 最后一条消息之前，0 = 末尾）。这样 system prompt 前缀保持稳定，
      * 记忆写入只让插入点之后分叉，不再把整段前缀缓存清空。
+     *
+     * 角色必须是 USER，不能是 SYSTEM：各 provider 适配器只取**第一条** system 当系统提示，
+     * 其余 system 消息会被直接丢掉（ClaudeProvider 用 firstOrNull{ SYSTEM } 后
+     * filter { role != SYSTEM }，GoogleProvider 同理，OpenAI ResponseAPI 也一样），
+     * 插进中段的 system 会静默失效。user 角色在所有适配器里都能原样透传。
      */
     private fun insertAtDepth(
         messages: List<UIMessage>,
@@ -104,7 +109,7 @@ class SemanticMemoryTransformer(
             visible.getOrNull(visible.size - depth.coerceAtLeast(0)) ?: messages.size
         }
         return messages.toMutableList().apply {
-            add(insertAt, UIMessage.system(memoryText).copy(isSynthetic = true))
+            add(insertAt, UIMessage.user(memoryText).copy(isSynthetic = true))
         }
     }
 
